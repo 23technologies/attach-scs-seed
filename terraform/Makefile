@@ -4,7 +4,7 @@
 SHELL := /bin/bash
 
 CONSOLE = mgmt
-ENVIRONMENT = gx-cc
+ENVIRONMENT = gx-cc-kna
 USERNAME = ubuntu
 
 OPENSTACK = openstack

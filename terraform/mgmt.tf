@@ -122,30 +122,9 @@ EOT
   }
 
   provisioner "file" {
-    source      = "files/deploy.sh"
-    destination = "/home/${var.ssh_username}/deploy.sh"
-  }
-
-  provisioner "file" {
     source      = "files/kubernetes-manifests.d/"
     destination = "/home/${var.ssh_username}"
   }
-
-  provisioner "file" {
-    source      = "files/patch_dashboard.sh"
-    destination = "/home/${var.ssh_username}/patch_dashboard.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/create_shoot.sh"
-    destination = "/home/${var.ssh_username}/create_shoot.sh"
-  }
-
-  provisioner "file" {
-    source      = "files/install_demo_app.sh"
-    destination = "/home/${var.ssh_username}/install_demo_app.sh"
-  }
-
 
   provisioner "remote-exec" {
     inline = [

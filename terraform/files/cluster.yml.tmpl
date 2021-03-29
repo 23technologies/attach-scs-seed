@@ -1,15 +1,15 @@
 nodes:
 %{ for controlplane in controlplanes ~}
-  - address: ${controlplane.name}
-    internal_address: ${controlplane.access_ip_v4}
+  - hostname_override: ${controlplane.name}
+    address: ${controlplane.access_ip_v4}
     user: ${ssh_username}
     role:
       - controlplane
       - etcd
 %{ endfor ~}
 %{ for worker in workers ~}
-  - address: ${worker.name}
-    internal_address: ${worker.access_ip_v4}
+  - hostname_override: ${worker.name}
+    address: ${worker.access_ip_v4}
     user: ${ssh_username}
     role:
       - worker
@@ -18,6 +18,21 @@ cluster_name: ${prefix}
 network:
   plugin: flannel
 cloud_provider:
-    name: external
+  name: external
+  name: openstack
+  openstackCloudProvider:
+    global:
+      username: ${clouds.auth.username}
+      password: ${secure.auth.password}
+      auth-url: ${clouds.auth.auth_url}
+      tenant-name: ${clouds.auth.project_name}
+      domain-name: ${clouds.auth.project_domain_name}
+      region: ${clouds.region_name}
+    load_balancer:
+      subnet-id: ${subnet.id}
+      use-octavia: true
+    block_storage:
+      ignore-volume-az: true
+      bs-version: v2
 ingress:
-    provider: none
+  provider: none
