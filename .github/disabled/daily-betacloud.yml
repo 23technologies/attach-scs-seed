@@ -1,0 +1,109 @@
+---
+name: Daily betacloud
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/daily-betacloud.yml'
+    branches:
+      - master
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  daily-betacloud-cleanup:
+    if: github.repository == '23technologies/testbed-gardener'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.5
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+      - name: Create clouds.yaml file
+        shell: bash
+        working-directory: ./terraform
+        env:
+          OPENSTACK_CLOUDS: ${{ secrets.OPENSTACK_CLOUDS }}
+        run: |
+          echo "$OPENSTACK_CLOUDS" > clouds.yaml
+      - name: Create secure.yaml file
+        shell: bash
+        working-directory: ./terraform
+        env:
+          OPENSTACK_SECURE: ${{ secrets.OPENSTACK_SECURE }}
+        run: |
+          echo "$OPENSTACK_SECURE" > secure.yaml
+      - name: Prepare use of minio
+        shell: bash
+        working-directory: ./terraform
+        env:
+          MINIO: ${{ secrets.MINIO }}
+        run: |
+          echo "$MINIO" > minio.env
+      - name: Install ospurge
+        run: pip3 install git+https://git.openstack.org/openstack/ospurge
+      - name: Install requirements
+        run: pip3 install -r requirements.txt
+      - name: Initialization
+        run: make init
+        working-directory: ./terraform
+      - name: Remove existing environment
+        run: yes | make ENVIRONMENT=standard purge || exit 0
+        working-directory: ./terraform
+
+  daily-betacloud-deploy:
+    if: github.repository == '23technologies/testbed-gardener'
+    needs: daily-betacloud-cleanup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.5
+      - name: Setup Terragrunt
+        uses: autero1/action-terragrunt@v1.0.0
+        with:
+          terragrunt_version: 0.27.3
+      - name: Display IP
+        shell: bash
+        working-directory: ./terraform
+        run: |
+          curl https://ipv4.stablerock.de
+      - name: Create clouds.yaml file
+        shell: bash
+        working-directory: ./terraform
+        env:
+          OPENSTACK_CLOUDS: ${{ secrets.OPENSTACK_CLOUDS }}
+        run: |
+          echo "$OPENSTACK_CLOUDS" > clouds.yaml
+      - name: Create secure.yaml file
+        shell: bash
+        working-directory: ./terraform
+        env:
+          OPENSTACK_SECURE: ${{ secrets.OPENSTACK_SECURE }}
+        run: |
+          echo "$OPENSTACK_SECURE" > secure.yaml
+      - name: Prepare use of minio
+        shell: bash
+        working-directory: ./terraform
+        env:
+          MINIO: ${{ secrets.MINIO }}
+        run: |
+          echo "$MINIO" > minio.env
+      - name: Initialization
+        run: make ENVIRONMENT=standard init
+        working-directory: ./terraform
+      - name: Deploy environment
+        run: make ENVIRONMENT=standard create
+        working-directory: ./terraform

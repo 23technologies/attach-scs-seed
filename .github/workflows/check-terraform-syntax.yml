@@ -1,0 +1,43 @@
+---
+name: Check terraform syntax
+
+"on":
+  push:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/check-terraform-syntax.yml'
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/check-terraform-syntax.yml'
+
+jobs:
+  validate-terraform:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        terraform-version:
+          - 0.14.2
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ matrix.terraform-version }}
+      - name: create config
+        run: cp clouds.yaml.sample clouds.yaml
+        working-directory: ./terraform
+      - name: create credentials
+        run: cp secure.yaml.sample secure.yaml
+        working-directory: ./terraform
+      - name: Terraform init
+        run: terraform init
+        working-directory: ./terraform
+      - name: Terraform format
+        run: terraform fmt -check
+        working-directory: ./terraform
+      - name: Terraform validate
+        run: terraform validate
+        working-directory: ./terraform
