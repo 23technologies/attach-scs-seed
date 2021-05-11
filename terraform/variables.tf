@@ -29,7 +29,7 @@ variable "network_availability_zone" {
 }
 
 variable "network_management" {
-  type        = string
+  type = string
 }
 
 variable "external" {

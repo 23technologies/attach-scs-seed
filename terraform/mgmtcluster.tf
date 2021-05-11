@@ -25,9 +25,9 @@ resource "openstack_networking_floatingip_associate_v2" "mgmtcluster_floatingip_
 }
 
 locals {
-  clouds = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
-  secure = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
-  gardener_apiserver_ca = lookup(lookup(lookup(yamldecode(file("gardener-apiserver.yaml")), "clusters")[0], "cluster"), "certificate-authority-data")
+  clouds                    = lookup(lookup(yamldecode(file("clouds.yaml")), "clouds"), var.cloud_provider)
+  secure                    = lookup(lookup(yamldecode(file("secure.yaml")), "clouds"), var.cloud_provider)
+  gardener_apiserver_ca     = lookup(lookup(lookup(yamldecode(file("gardener-apiserver.yaml")), "clusters")[0], "cluster"), "certificate-authority-data")
   gardener_apiserver_server = lookup(lookup(lookup(yamldecode(file("gardener-apiserver.yaml")), "clusters")[0], "cluster"), "server")
 }
 
@@ -70,14 +70,14 @@ EOF
     source      = "gardener-apiserver.yaml"
     destination = "/home/${var.ssh_username}/gardener-apiserver.yaml"
   }
-  
-provisioner "file" {
+
+  provisioner "file" {
     content     = templatefile("files/template/token.yaml.tmpl", { bootstrap_token_id = random_string.bootstrap_token_id.result, bootstrap_token_secret = random_string.bootstrap_token_secret.result })
     destination = "/home/${var.ssh_username}/token.yaml"
   }
 
-provisioner "file" {
-    content     = templatefile("files/template/gardenlet-values.yaml.tmpl", { bootstrap_token_id = random_string.bootstrap_token_id.result, bootstrap_token_secret = random_string.bootstrap_token_secret.result, gardener_apiserver_server = local.gardener_apiserver_server, gardener_apiserver_ca = local.gardener_apiserver_ca, cloud_provider = var.cloud_provider, dns_domain = var.dns_domain , clouds = local.clouds })
+  provisioner "file" {
+    content     = templatefile("files/template/gardenlet-values.yaml.tmpl", { bootstrap_token_id = random_string.bootstrap_token_id.result, bootstrap_token_secret = random_string.bootstrap_token_secret.result, gardener_apiserver_server = local.gardener_apiserver_server, gardener_apiserver_ca = local.gardener_apiserver_ca, cloud_provider = var.cloud_provider, dns_domain = var.dns_domain, clouds = local.clouds })
     destination = "/home/${var.ssh_username}/gardenlet-values.yaml"
   }
 
