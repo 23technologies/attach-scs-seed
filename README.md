@@ -19,6 +19,8 @@ and fill in the correct credentials for your openstack-cloud.
 
 Adjust variables in environment/standard.tfvars to suit your needs.
 
+Place the gardener-apiserver.yaml file in the folder terraform.
+
 ## Build up Gardener
 
 **make sure that no other testbed is already in the project.**
