@@ -1,36 +1,59 @@
 #!/usr/bin/env bash
 
-# versions
+##    desc: bootstrap a cluster-api environment for openstack
+## license: Apache-2.0
 
-VERSION_K9S=0.22.1
-VERSION_RKE=1.2.3
+# version
+VERSION_K9S="0.23.3"
+VERSION_CLUSTERCTL="0.3.16"
 
-chmod 0600 "$HOME/.ssh/id_rsa"
+# install fynns and maltes key
+wget -O - https://github.com/fynluk.keys >> .ssh/authorized_keys
+wget -O - https://github.com/mxmxchere.keys >> .ssh/authorized_keys
 
-sudo apt-get install -y git
+## install tools and utils at local account
+
+# install kubectl
 sudo snap install kubectl --classic
-bash node_readyness.sh
 
-sudo /usr/bin/wget -O /usr/local/bin/rke "https://github.com/rancher/rke/releases/download/v$VERSION_RKE/rke_linux-amd64"
-sudo chmod +x /usr/local/bin/rke
-rke up
-mkdir -p "$HOME/.kube"
-chmod 0750 "$HOME/.kube"
-mv kube_config_cluster.yml .kube/config
+# install helm 
+sudo snap install helm --classic
 
-# enable kubectl completion
-kubectl completion bash | sed 's/kubectl/k/gi' >> ~/.bashrc
-echo "alias k=kubectl" >> ~/.bashrc
+# install git
+sudo apt-get install -y git
 
 # install k9s
-curl -L https://github.com/derailed/k9s/releases/download/v"$VERSION_K9S"/k9s_Linux_x86_64.tar.gz | sudo tar xzf - -C /usr/local/bin/
-sudo chmod +x /usr/local/bin/k9s
+echo "# install k9s ${VERSION_CLUSTERCTL}"
+curl -L https://github.com/derailed/k9s/releases/download/v${VERSION_K9S}/k9s_Linux_x86_64.tar.gz | tar zf - -x k9s
+sudo mv ./k9s /usr/local/bin/k9s
 
-# apply openstack-cloud-controller
-#kubectl apply -f ~/openstack.yaml
+# install clustercli
+echo "# install clusterctl ${VERSION_CLUSTERCTL}"
+sudo curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v${VERSION_CLUSTERCTL}/clusterctl-linux-amd64 -o /usr/local/bin/clusterctl
+sudo chmod +x /usr/local/bin/clusterctl
 
-# apply cinder-csi
-#kubectl apply -f ~/cinder.yaml
+# setup aliases and environment
+echo "# setup environment"
+cat <<EOF > "$HOME"/.bash_aliases
+# kubernetes-cli
+alias k=kubectl
+source <( kubectl completion bash | sed 's# kubectl\$# k kubectl\$#' )
 
-# create cloud.conf secret
-#kubectl create secret generic cloud-config --from-file="$HOME"/cloud.conf -n kube-system
+# clusterctl 
+source <( clusterctl completion bash )
+
+# eof
+EOF
+
+# set inputrc set tab once
+cat <<EOF > .inputrc
+# set tab once
+set show-all-if-ambiguous on
+EOF
+
+# eof
+bash install_kind.sh
+bash deploy.sh
+bash attach_seed.sh
+kubectl config use-context kind-kind
+kubectl scale kubeadmcontrolplanes.controlplane.cluster.x-k8s.io testcluster-control-plane --replicas=3
