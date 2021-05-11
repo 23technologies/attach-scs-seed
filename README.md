@@ -19,7 +19,8 @@ and fill in the correct credentials for your openstack-cloud.
 
 Adjust variables in environment/standard.tfvars to suit your needs.
 
-Place the gardener-apiserver.yaml file in the folder terraform.
+Add the gardener-apiserver.yaml kubeconfig to the terraform/ folder.
+This kubeconfig should access the virtual-gardener-apiserver in your garden-cluster
 
 ## Build up Gardener
 
@@ -28,11 +29,8 @@ Place the gardener-apiserver.yaml file in the folder terraform.
 ``make create`` creates the testbed:
 
 1. creates all relevant openstack resources, networks, securitygroups, dns-zones, VMs
-2. creates kubernetes cluster with RKE on the VMs
-3. deploys gardener, the gardener dashboard and a gardener-seed in the cluster
-4. Installs keycloak and attaches it to gardener-dashboard
-
-At the end of a successful deployment, the URL, email and password for the login will be displayed.
+2. creates kubernetes cluster with Cluster-API on the VMs
+3. attaches this cluster as seed to the garden-cluster
 
 ## Teardown Gardener
 #### Nice and slow
