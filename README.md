@@ -2,6 +2,8 @@
 
 This repo sets up a kubernetes cluster on the specified cloud and attaches it as seed to the specified gardener.
 
+Demo: https://asciinema.org/a/417622
+
 ## Required software
 
 * Terraform must be installed (https://learn.hashicorp.com/tutorials/terraform/install-cli)
