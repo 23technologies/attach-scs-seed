@@ -1,4 +1,5 @@
 .MGMT_ADDRESS.*
+k8s-cluster-api-provider/
 .deploy.*
 .id_rsa.*
 .terraform.*
