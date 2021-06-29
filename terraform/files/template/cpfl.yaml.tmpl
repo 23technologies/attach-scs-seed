@@ -1,45 +1,45 @@
 apiVersion: core.gardener.cloud/v1beta1
 kind: CloudProfile
 metadata:
-  name: gx-scs-staging
+  name: ${cloud_provider}
 spec:
   kubernetes:
     versions:
-    - version: 1.19.3
+    - version: ${kubernetes_version}
   machineImages:
   - name: ubuntu
     versions:
-    - version: 20.4.20210105
+    - version: 1.0.0
   machineTypes:
-  - cpu: "8"
+  - cpu: "${flavor_worker_cpu}"
     gpu: "0"
-    memory: 16Gi
-    name: 8C-16GB-60GB
+    memory: ${flavor_worker_memory}
+    name: ${flavor_worker}
     storage:
       class: default
-      size: 60Gi
+      size: ${flavor_worker_disk}
       type: default
     usable: true
   providerConfig:
     apiVersion: openstack.provider.extensions.gardener.cloud/v1alpha1
     constraints:
       floatingPools:
-      - name: ext01
+      - name: ${external}
       loadBalancerProviders:
       - name: amphora
-    keystoneURL: https://api.gx-scs.sovereignit.cloud:5000
+    keystoneURL: ${clouds.auth.auth_url}
     kind: CloudProfileConfig
     machineImages:
     - name: ubuntu
       versions:
-      - image: Ubuntu 20.04 Focal Fossa 20210105
+      - image: ${image}
         regions:
         - id: c815c712-b125-4ae9-b3b6-efa2a1ed1605
-          name: RegionOne
-        version: 20.4.20210105
+          name: ${clouds.region_name}
+        version: 1.0.0
     useOctavia: true
   regions:
-  - name: RegionOne
+  - name: ${clouds.region_name}
     zones:
     - name: nova
   type: openstack

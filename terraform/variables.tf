@@ -45,7 +45,7 @@ variable "ssh_username" {
 variable "kubernetes_version" {
   description = "desired kubernetes version for the workload cluster"
   type        = string
-  default     = "v1.20.6"
+  default     = "1.20.6"
 }
 
 variable "backup_enabled" {
@@ -85,5 +85,9 @@ variable "flavor_worker_disk" {
 }
 variable "public" {
   default = "ext01"
+  type    = string
+}
+variable "gardener_project_namespace" {
+  default = "garden-dev"
   type    = string
 }

@@ -4,7 +4,7 @@
 #ENVIRONMENT = gx-bc
 #ENVIRONMENT = gx-citycloud
 #ENVIRONMENT = gx-scs
-ENVIRONMENT = gx-scs-staging
+ENVIRONMENT = gx-citycloud
 OPENSTACK = openstack
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster

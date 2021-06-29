@@ -111,6 +111,15 @@ EOF
   }
 
   provisioner "file" {
+    content     = templatefile("files/template/cpfl.yaml.tmpl", { kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor_worker = var.flavor, cloud_provider = var.cloud_provider, dns_domain = var.dns_domain, clouds = local.clouds, flavor_worker_cpu = var.flavor_worker_cpu, flavor_worker_memory = var.flavor_worker_memory, flavor_worker_disk = var.flavor_worker_disk })
+    destination = "/home/${var.ssh_username}/cpfl.yaml"
+  }
+
+  provisioner "file" {
+    content     = templatefile("files/template/cloud-secret.yaml.tmpl", { gardener_project_namespace = var.gardener_project_namespace, kubernetes_version = var.kubernetes_version, availability_zone = var.availability_zone, external = var.external, image = var.image, flavor_worker = var.flavor, cloud_provider = var.cloud_provider, dns_domain = var.dns_domain, clouds = local.clouds, flavor_worker_cpu = var.flavor_worker_cpu, flavor_worker_memory = var.flavor_worker_memory, flavor_worker_disk = var.flavor_worker_disk })
+    destination = "/home/${var.ssh_username}/cloud-secret.yaml"
+  }
+  provisioner "file" {
     content     = templatefile("files/template/clouds.yaml.tmpl", { cloud_provider = var.cloud_provider, clouds = local.clouds, secure = local.secure })
     destination = "/home/${var.ssh_username}/clouds.yaml"
   }
