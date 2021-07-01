@@ -20,6 +20,7 @@ create:
 	@git clone https://github.com/SovereignCloudStack/k8s-cluster-api-provider.git
 	@cp secure.yaml k8s-cluster-api-provider/terraform/
 	@cp clouds.yaml k8s-cluster-api-provider/terraform/
+	@cp extension-files/* k8s-cluster-api-provider/terraform/extension/
 	@cd k8s-cluster-api-provider/terraform && make create ENVIRONMENT=$(ENVIRONMENT)
 
 purge:
