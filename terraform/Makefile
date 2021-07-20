@@ -1,10 +1,10 @@
 # Makefile
 
 # set the env we used 
-#ENVIRONMENT = gx-bc
+ENVIRONMENT = default
 #ENVIRONMENT = gx-citycloud
 #ENVIRONMENT = gx-scs
-ENVIRONMENT = gx-citycloud
+#ENVIRONMENT = gx-citycloud
 OPENSTACK = openstack
 USERNAME = ubuntu
 CONSOLE = capi-mgmtcluster
@@ -20,16 +20,17 @@ create:
 	@git clone https://github.com/SovereignCloudStack/k8s-cluster-api-provider.git
 	@cp secure.yaml k8s-cluster-api-provider/terraform/
 	@cp clouds.yaml k8s-cluster-api-provider/terraform/
+	@cp gardener-apiserver.yaml k8s-cluster-api-provider/terraform/extension
 	@cp extension-files/* k8s-cluster-api-provider/terraform/extension/
+	@cp environments/environment-$(ENVIRONMENT).tfvars k8s-cluster-api-provider/terraform/extension/variables.tf
 	@cd k8s-cluster-api-provider/terraform && make create ENVIRONMENT=$(ENVIRONMENT)
 
 purge:
 	@cd k8s-cluster-api-provider/terraform && make purge ENVIRONMENT=$(ENVIRONMENT)
 	@rm -rf k8s-cluster-api-provider
 
-ssh:    .deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT) .deploy.id_rsa.$(ENVIRONMENT)
-	@source ./.deploy.MGMTCLUSTER_ADDRESS.$(ENVIRONMENT); \
-	ssh -o StrictHostKeyChecking=no -i .deploy.id_rsa.$(ENVIRONMENT) $(USERNAME)@$$MGMTCLUSTER_ADDRESS
+ssh:
+	@cd k8s-cluster-api-provider/terraform && make ssh ENVIRONMENT=$(ENVIRONMENT)
 
 openstack:
 	@$(OPENSTACK)
