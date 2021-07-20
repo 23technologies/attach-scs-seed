@@ -1,18 +1,30 @@
 #!/usr/bin/env bash
 sudo snap install helm --classic
-
+export cloud_provider
+export gardener_version
 source variables.tf
-export BOOTSTRAP_TOKEN_ID=$(/bin/cat /dev/urandom | /usr/bin/strings -e s -n 1 | /usr/bin/tr -d -c 'abcdef0123456789' | /bin/dd bs=1 count=6 status=none)
-export BOOTSTRAP_TOKEN_SECRET=$(/bin/cat /dev/urandom | /usr/bin/strings -e s -n 1 | /usr/bin/tr -d -c 'abcdef0123456789' | /bin/dd bs=1 count=16 status=none)
+BOOTSTRAP_TOKEN_ID=$(/bin/cat /dev/urandom | /usr/bin/strings -e s -n 1 | /usr/bin/tr -d -c 'abcdef0123456789' | /bin/dd bs=1 count=6 status=none)
+export BOOTSTRAP_TOKEN_ID
+BOOTSTRAP_TOKEN_SECRET=$(/bin/cat /dev/urandom | /usr/bin/strings -e s -n 1 | /usr/bin/tr -d -c 'abcdef0123456789' | /bin/dd bs=1 count=16 status=none)
+export BOOTSTRAP_TOKEN_SECRET
+BOOTSTRAP_TOKEN
 export BOOTSTRAP_TOKEN=$BOOTSTRAP_TOKEN_ID.$BOOTSTRAP_TOKEN_SECRET
-export KEYSTONE_AUTH_URL=$(yq eval ".clouds.$cloud_provider.auth.auth_url" ../clouds.yaml)
-export REGION=$(yq eval ".clouds.$cloud_provider.region_name" ../clouds.yaml)
-export DOMAIN_NAME=$(yq eval ".clouds.$cloud_provider.auth.user_domain_name" ../clouds.yaml)
-export PASSWORD=$(yq eval ".clouds.$cloud_provider.auth.password" ../clouds.yaml)
-export TENANT_NAME=$(yq eval ".clouds.$cloud_provider.auth.project_name" ../clouds.yaml)
-export USER_NAME=$(yq eval ".clouds.$cloud_provider.auth.username" ../clouds.yaml)
-export GARDENER_APISERVER_CA=$(yq eval ".clusters[0].cluster.certificate-authority-data" gardener-apiserver.yaml)
-export GARDENER_APISERVER_SERVER=$(yq eval ".clusters[0].cluster.server" gardener-apiserver.yaml)
+KEYSTONE_AUTH_URL=$(yq eval ".clouds.$cloud_provider.auth.auth_url" ../clouds.yaml)
+export KEYSTONE_AUTH_URL
+REGION=$(yq eval ".clouds.$cloud_provider.region_name" ../clouds.yaml)
+export REGION
+DOMAIN_NAME=$(yq eval ".clouds.$cloud_provider.auth.user_domain_name" ../clouds.yaml)
+export DOMAIN_NAME
+PASSWORD=$(yq eval ".clouds.$cloud_provider.auth.password" ../clouds.yaml)
+export PASSWORD
+TENANT_NAME=$(yq eval ".clouds.$cloud_provider.auth.project_name" ../clouds.yaml)
+export TENANT_NAME
+USER_NAME=$(yq eval ".clouds.$cloud_provider.auth.username" ../clouds.yaml)
+export USER_NAME
+GARDENER_APISERVER_CA=$(yq eval ".clusters[0].cluster.certificate-authority-data" gardener-apiserver.yaml)
+export GARDENER_APISERVER_CA
+GARDENER_APISERVER_SERVER=$(yq eval ".clusters[0].cluster.server" gardener-apiserver.yaml)
+export GARDENER_APISERVER_SERVER
 
 # token.yaml
 cp token.yaml.tmpl token.yaml
@@ -72,7 +84,8 @@ yq eval '.users[0].user.token = env(BOOTSTRAP_TOKEN)' -i bootstrap-kubeconfig.ya
 
 # gardenlet-values.yaml
 cp gardenlet-values.yaml.tmpl gardenlet-values.yaml
-export BOOTSTRAP_KUBECONFIG=$(cat bootstrap-kubeconfig.yaml)
+BOOTSTRAP_KUBECONFIG=$(cat bootstrap-kubeconfig.yaml)
+export BOOTSTRAP_KUBECONFIG
 yq eval '.global.gardenlet.config.gardenClientConnection.bootstrapKubeconfig.kubeconfig = env(BOOTSTRAP_KUBECONFIG)'  -i gardenlet-values.yaml
 sed -i 's/^          kubeconfig:$/          kubeconfig: |/' gardenlet-values.yaml
 yq eval '.global.gardenlet.config.seedConfig.metadata.name = env(cloud_provider)'  -i gardenlet-values.yaml
@@ -80,8 +93,8 @@ yq eval '.global.gardenlet.config.seedConfig.spec.dns.ingressDomain = "ing." + e
 yq eval '.global.gardenlet.config.seedConfig.spec.provider.region = env(REGION)'  -i gardenlet-values.yaml
 yq eval '.global.gardenlet.image.tag = env(gardener_version)'  -i gardenlet-values.yaml
 git clone https://github.com/gardener/gardener
-cd gardener
-git checkout $gardener_version
+cd gardener || exit
+git checkout "$gardener_version"
 cd ..
 kubectl create namespace garden --kubeconfig ../workload-cluster.yaml
 helm install gardenlet gardener/charts/gardener/gardenlet --namespace garden -f gardenlet-values.yaml --wait --kubeconfig ../workload-cluster.yaml
