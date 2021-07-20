@@ -12,6 +12,12 @@ Demo: https://asciinema.org/a/417622
 * ospurge is required for project-cleanup (be careful):
 ``python3 -m pip install git+https://git.openstack.org/openstack/ospurge``
 * A gardener installation is required
+* The gardener installation needs to have a controllerregistration for the openstack provider. In case
+it does not have it yet, it can be easily added:
+```kubectl apply -f https://raw.githubusercontent.com/gardener/gardener-extension-provider-openstack/master/example/controller-registration.yaml --kubeconfig gardener-apiserver.yaml```
+* The gardener installation needs to have a controllerregistration for the ubuntu operating system. In case
+it does not have it yet, it can be easily added:
+```kubectl apply -f https://raw.githubusercontent.com/gardener/gardener-extension-os-ubuntu/master/example/controller-registration.yaml --kubeconfig gardener-apiserver.yaml```
 
 ## Configuration
 All relevant steps happen in the folder terraform

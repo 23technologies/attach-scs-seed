@@ -6,7 +6,7 @@ global:
     serviceAccountName: gardenlet
     image:
       repository: eu.gcr.io/gardener-project/gardener/gardenlet
-      tag: latest
+      tag: v1.23.0
       pullPolicy: IfNotPresent
     resources:
       requests:
@@ -31,19 +31,19 @@ global:
             kind: Config
             current-context: gardenlet-bootstrap@default
             clusters:
-            - cluster:
-                certificate-authority-data: ${gardener_apiserver_ca}
-                server: ${gardener_apiserver_server}
-              name: default
+              - cluster:
+                  certificate-authority-data: ${gardener_apiserver_ca}
+                  server: ${gardener_apiserver_server}
+                name: default
             contexts:
-            - context:
-                cluster: default
-                user: gardenlet-bootstrap
-              name: gardenlet-bootstrap@default
+              - context:
+                  cluster: default
+                  user: gardenlet-bootstrap
+                name: gardenlet-bootstrap@default
             users:
-            - name: gardenlet-bootstrap
-              user:
-                token: "${bootstrap_token_id}.${bootstrap_token_secret}"
+              - name: gardenlet-bootstrap
+                user:
+                  token: ${bootstrap_token_id}.${bootstrap_token_secret}
         kubeconfigSecret:
           name: gardenlet-kubeconfig
           namespace: garden
@@ -74,14 +74,14 @@ global:
           staleExtensionHealthChecks:
             enabled: true
           conditionThresholds:
-          - type: APIServerAvailable
-            duration: 1m
-          - type: ControlPlaneHealthy
-            duration: 1m
-          - type: SystemComponentsHealthy
-            duration: 1m
-          - type: EveryNodeReady
-            duration: 5m
+            - type: APIServerAvailable
+              duration: 1m
+            - type: ControlPlaneHealthy
+              duration: 1m
+            - type: SystemComponentsHealthy
+              duration: 1m
+            - type: EveryNodeReady
+              duration: 5m
         shootStateSync:
           concurrentSyncs: 5
           syncPeriod: 30s
@@ -122,4 +122,3 @@ global:
   deployment:
     virtualGarden:
       enabled: false
-
